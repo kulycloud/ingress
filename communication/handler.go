@@ -7,7 +7,9 @@ import (
 
 var _ protoIngress.IngressServer = &IngressHandler{}
 
-type IngressHandler struct{}
+type IngressHandler struct {
+	protoIngress.UnimplementedIngressServer
+}
 
 func NewIngressHandler() *IngressHandler {
 	return &IngressHandler{}

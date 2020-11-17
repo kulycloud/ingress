@@ -10,6 +10,8 @@ import (
 
 var logger = logging.GetForComponent("communication")
 
+var Storage *commonCommunication.StorageCommunicator
+
 func RegisterToControlPlane() {
 	go registerLoop()
 
@@ -26,6 +28,7 @@ func RegisterToControlPlane() {
 			logger.Panicw("error serving listener", "error", err)
 		}
 	}()
+	Storage = listener.Storage
 }
 
 func registerLoop() {
