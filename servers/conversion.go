@@ -57,8 +57,8 @@ func bodyToChunks(body io.ReadCloser) <-chan *protoHttp.Chunk {
 	chunks := make(chan *protoHttp.Chunk, 1)
 	go func() {
 		defer body.Close()
-		buffer := make([]byte, commonHttp.MaxChunkSize)
 		for {
+			buffer := make([]byte, commonHttp.MaxChunkSize)
 			count, err := body.Read(buffer)
 			if count > 0 {
 				chunks <- &protoHttp.Chunk{
