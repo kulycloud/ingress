@@ -15,7 +15,7 @@ func registerHandler() {
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			com := commonHttp.NewHttpCommunicator(routeStart.GetEndpoints())
+			com := commonHttp.NewCommunicator(routeStart.GetEndpoints())
 			stream, err := com.Stream(r.Context())
 			if err != nil {
 				logger.Errorw("did not get stream", "error", err)
