@@ -2,9 +2,11 @@ package servers
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"github.com/kulycloud/common/logging"
+	"github.com/kulycloud/ingress/config"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,6 +19,18 @@ var portsToListenOn = []int32{
 	8080,
 }
 var servers = []*http.Server{}
+
+var tlsCfg = &tls.Config{
+	MinVersion:               tls.VersionTLS12,
+	CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+	PreferServerCipherSuites: true,
+	CipherSuites: []uint16{
+		tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+		tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+	},
+}
 
 func Dispatch() {
 	registerHandler()
@@ -46,10 +60,13 @@ func getContext() context.Context {
 
 func dispatchServer(port int32) {
 	server := &http.Server{
-		Addr: fmt.Sprintf(":%v", port),
+		Addr:         fmt.Sprintf(":%v", port),
+		TLSConfig:    tlsCfg,
+		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServeTLS(config.GlobalConfig.CertFile, config.GlobalConfig.KeyFile)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Panicw("error starting server", "error", err, "port", server.Addr)
 		}
 	}()
