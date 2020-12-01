@@ -22,6 +22,7 @@ func newProtoRequestHeader() *protoRequestHeader {
 func (prh *protoRequestHeader) setHttpData(r *http.Request) {
 	prh.HttpData = &protoHttp.RequestHeader_HttpData{
 		Method: r.Method,
+		Host:   r.URL.Host,
 		Path:   r.URL.Path,
 		Source: r.RemoteAddr,
 	}
