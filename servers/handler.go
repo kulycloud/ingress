@@ -36,6 +36,7 @@ func registerHandler() {
 			err = writeResponse(stream, w)
 			if err != nil {
 				logger.Warnw("error while streaming response", "error", err)
+				w.WriteHeader(http.StatusInternalServerError)
 			}
 		} else {
 			logger.Error("storage not ready")
