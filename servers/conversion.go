@@ -70,7 +70,7 @@ func bodyToChunks(body io.ReadCloser) <-chan *protoHttp.Chunk {
 			}
 			if err != nil {
 				if !errors.Is(err, io.EOF) {
-					logger.Errorw("error during body parsing", "error", err)
+					logger.Warnw("error during body reading", "error", err)
 				}
 				break
 			}
@@ -89,17 +89,23 @@ func sendRequest(stream protoHttp.Http_ProcessRequestClient, r *http.Request, ro
 		return err
 	}
 	chunks := bodyToChunks(r.Body)
-	for {
-		chunk, ok := <-chunks
-		if !ok {
-			break
+	go func() {
+		for {
+			chunk, ok := <-chunks
+			if !ok {
+				break
+			}
+			err := stream.Send(chunk)
+			if err != nil {
+				logger.Warnw("error sending to stream", "error", err)
+			}
 		}
-		err := stream.Send(chunk)
+		err = stream.CloseSend()
 		if err != nil {
-			return err
+			logger.Warnw("error during stream closing", "error", err)
 		}
-	}
-	return stream.CloseSend()
+	}()
+	return nil
 }
 
 func writeResponse(stream protoHttp.Http_ProcessRequestClient, w http.ResponseWriter) error {
