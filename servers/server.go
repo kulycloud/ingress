@@ -15,9 +15,6 @@ import (
 
 var logger = logging.GetForComponent("servers")
 
-var portsToListenOn = []int32{
-	8080,
-}
 var servers = []*http.Server{}
 
 var tlsCfg = &tls.Config{
@@ -37,7 +34,7 @@ func Dispatch() {
 
 	ctx := getContext()
 
-	for _, port := range portsToListenOn {
+	for _, port := range config.GlobalConfig.HTTPPorts {
 		dispatchServer(port)
 	}
 
@@ -58,9 +55,9 @@ func getContext() context.Context {
 	return ctx
 }
 
-func dispatchServer(port int32) {
+func dispatchServer(port string) {
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%v", port),
+		Addr:         fmt.Sprintf(":%s", port),
 		TLSConfig:    tlsCfg,
 		TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
 	}

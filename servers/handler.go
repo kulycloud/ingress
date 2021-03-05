@@ -15,9 +15,9 @@ func registerHandler() {
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			com, err := commonHttp.NewCommunicator(r.Context(), routeStart.GetEndpoints())
+			com, err := commonHttp.NewCommunicator(r.Context(), routeStart.Step.Endpoints)
 			if err != nil {
-				logger.Warnw("communication error", "error", err, "endpoints", routeStart.GetEndpoints())
+				logger.Warnw("communication error", "error", err, "endpoints", routeStart.Step.Endpoints)
 				w.WriteHeader(http.StatusBadGateway)
 				return
 			}

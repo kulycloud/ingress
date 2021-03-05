@@ -37,7 +37,6 @@ func (prh *protoRequestHeader) setKulyData(s *protoStorage.GetRouteStartResponse
 	prh.KulyData = &protoHttp.RequestHeader_KulyData{
 		RouteUid:   s.Uid,
 		StepUid:    0,
-		Step:       s.Step,
 		RequestUid: uuid.New().String(),
 	}
 }

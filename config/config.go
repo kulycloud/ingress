@@ -11,6 +11,7 @@ type Config struct {
 	ControlPlanePort uint32 `configName:"controlPlanePort"`
 	CertFile         string `configName:"certFile"`
 	KeyFile          string `configName:"keyFile"`
+	HTTPPorts		 []string `configName:"httpPorts" defaultValue:"443"`
 }
 
 var GlobalConfig = &Config{}
