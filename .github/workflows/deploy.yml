@@ -13,7 +13,7 @@ jobs:
     - name: Set image name
       run: |
         echo ""
-        echo "IMAGE=ghcr.io/kulycloud/storage-redis:$(date +%s)" >> $GITHUB_ENV
+        echo "IMAGE=ghcr.io/kulycloud/ingress:$(date +%s)" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: Login to DockerHub
       uses: docker/login-action@v1 
@@ -30,5 +30,5 @@ jobs:
     - name: Deploy
       uses: WyriHaximus/github-action-helm3@v2
       with:
-        exec: helm upgrade storage-redis ./ci/helm/ --install --wait --atomic --set=image=${{ env.IMAGE }} --set=redis.address=${{ secrets.REDIS_ADDRESS }} --set=redis.password=${{ secrets.REDIS_PASSWORD }}
+        exec: helm upgrade ingress ./ci/helm/ --install --wait --atomic --set=image=${{ env.IMAGE }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
