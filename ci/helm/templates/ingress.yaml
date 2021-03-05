@@ -37,7 +37,17 @@ spec:
           value: "12270"
         - name: HTTP_PORTS
           value: "443"
-        resources: {}
+        - name: CERT_FILE
+          value: /tls/tls.crt
+        - name: KEY_FILE
+          value: /tls/tls.key
+        volumeMounts:
+        - name: tls-data
+          mountPath: "/tls"
+      volumes:
+      - name: tls-data
+        secret:
+          secretName: ingress-tls
 ---
 apiVersion: v1
 kind: Service
