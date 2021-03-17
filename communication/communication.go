@@ -1,11 +1,9 @@
 package communication
 
 import (
-	"context"
 	commonCommunication "github.com/kulycloud/common/communication"
 	"github.com/kulycloud/common/logging"
 	"github.com/kulycloud/ingress/config"
-	"time"
 )
 
 var logger = logging.GetForComponent("communication")
@@ -13,7 +11,9 @@ var logger = logging.GetForComponent("communication")
 var Storage *commonCommunication.StorageCommunicator
 
 func RegisterToControlPlane() {
-	go registerLoop()
+	communicator := commonCommunication.RegisterToControlPlane("ingress",
+		config.GlobalConfig.Host, config.GlobalConfig.Port,
+		config.GlobalConfig.ControlPlaneHost, config.GlobalConfig.ControlPlanePort, true)
 
 	logger.Info("Starting listener")
 	listener := commonCommunication.NewListener(logging.GetForComponent("listener"))
@@ -24,37 +24,11 @@ func RegisterToControlPlane() {
 	handler := NewIngressHandler()
 	handler.Register(listener)
 	go func() {
-		if err := listener.Serve(); err != nil {
+		if err := <-listener.Serve(); err != nil {
 			logger.Panicw("error serving listener", "error", err)
 		}
 	}()
-	Storage = listener.Storage
-}
 
-func registerLoop() {
-	for {
-		_, err := register()
-		if err == nil {
-			break
-		}
-
-		logger.Info("Retrying in 5s...")
-		time.Sleep(5 * time.Second)
-	}
-}
-
-func register() (*commonCommunication.ControlPlaneCommunicator, error) {
-	comm := commonCommunication.NewControlPlaneCommunicator()
-	err := comm.Connect(config.GlobalConfig.ControlPlaneHost, config.GlobalConfig.ControlPlanePort)
-	if err != nil {
-		logger.Errorw("Could not connect to control-plane", "error", err)
-		return nil, err
-	}
-	err = comm.RegisterThisService(context.Background(), "ingress", config.GlobalConfig.Host, config.GlobalConfig.Port)
-	if err != nil {
-		logger.Errorw("Could not register service", "error", err)
-		return nil, err
-	}
-	logger.Info("Registered to control-plane")
-	return comm, nil
+	controlPlane := <-communicator
+	Storage = controlPlane.Storage
 }
