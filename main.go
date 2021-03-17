@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/kulycloud/common/logging"
-
 	"github.com/kulycloud/ingress/communication"
 	"github.com/kulycloud/ingress/config"
 	"github.com/kulycloud/ingress/servers"
