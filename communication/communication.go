@@ -13,7 +13,7 @@ var Storage *commonCommunication.StorageCommunicator
 func RegisterToControlPlane() {
 	communicator := commonCommunication.RegisterToControlPlane("ingress",
 		config.GlobalConfig.Host, config.GlobalConfig.Port,
-		config.GlobalConfig.ControlPlaneHost, config.GlobalConfig.ControlPlanePort)
+		config.GlobalConfig.ControlPlaneHost, config.GlobalConfig.ControlPlanePort, true)
 
 	logger.Info("Starting listener")
 	listener := commonCommunication.NewListener(logging.GetForComponent("listener"))
@@ -29,6 +29,6 @@ func RegisterToControlPlane() {
 		}
 	}()
 
-	Storage = listener.Storage
-	<-communicator
+	controlPlane := <-communicator
+	Storage = controlPlane.Storage
 }
